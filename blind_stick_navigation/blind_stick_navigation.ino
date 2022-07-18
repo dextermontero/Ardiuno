@@ -1,20 +1,20 @@
 #include <SoftwareSerial.h>
 
 // ULTRA SONIC SENSOR PINS
-#define echoPin 2             // attach pin D2 Arduino to pin Echo of HC-SR04
-#define trigPin 3             //attach pin D3 Arduino to pin Trig of HC-SR04
-long duration;                // variable for the duration of sound wave travel
+#define echoPin 2
+#define trigPin 3             
+long duration;                
 int distance; 
 
 // BUZZER PINS
-#define buzzer 10              // Buzzer
+#define buzzer 10              
 
 // WATER SENSOR PINS
-#define POWER_PIN  6          // White
-#define SIGNAL_PIN A5         // Yellow 
-int value = 0;                // variable to store the sensor value
+#define POWER_PIN  6          
+#define SIGNAL_PIN A5         
+int value = 0;                
 
-SoftwareSerial mySerial(7, 8); //SIM900 Tx & Rx is connected to Arduino #7 & #8
+SoftwareSerial mySerial(7, 8); 
 #define power_on 9 // GSM POWER
 // 7 GREEN UPPER
 // 8 ORANGE LOWER
@@ -34,8 +34,8 @@ void setup() {
   delay(2000);  
   digitalWrite(power_on,LOW);
   delay(1000); 
-  Serial.begin(19200); //Begin serial communication with Arduino and Arduino IDE (Serial Monitor)
-  mySerial.begin(19200); //Begin serial communication with Arduino and SIM900
+  Serial.begin(19200); 
+  mySerial.begin(19200); 
   // GSM POWER SOFTWARE
   Serial.println("Initializing..."); 
   delay(20000);
@@ -50,11 +50,10 @@ void setup() {
   delSMS();
   delay(5000);
   mySerial.println(); 
-  mySerial.println("AT"); //Handshaking with SIM900
+  mySerial.println("AT"); 
   updateSerial();
   mySerial.println("AT+CMGF=1\r"); 
   delay(100);
-  // Set module to send SMS data to serial out upon receipt 
   mySerial.println("AT+CNMI=2,2,0,0,0\r");
   delay(5000);
 }
@@ -64,20 +63,28 @@ void loop() {
     incoming_char = mySerial.read();
     newString += incoming_char;
     Serial.print(incoming_char);
-    /*if(incoming_char == 'l'){
-      sendGPS(); //- send GPS Function
-    }*/
+	  if (newString.endsWith("Loc")){
+		sendGPS(); 
+	  }
+	  if (newString.endsWith("Location")){
+		sendGPS(); 
+	  }
+	  if (newString.endsWith("loc")){
+		sendGPS(); 
+	  }
+	  if (newString.endsWith("location")){
+		sendGPS(); 
+	  }
   }else {
     Serial.print("");
-  // Clears the trigPin condition
     digitalWrite(trigPin, LOW);
-    delayMicroseconds(2);                       // Sets the trigPin HIGH (ACTIVE) for 10 microseconds
+    delayMicroseconds(2);                       
     
     digitalWrite(trigPin, HIGH);
     delayMicroseconds(10);
     digitalWrite(trigPin, LOW);
-    duration = pulseIn(echoPin, HIGH);          // Reads the echoPin, returns the sound wave travel time in microseconds
-    distance = duration * 0.034 / 2;            // Speed of sound wave divided by 2 (go and back)
+    duration = pulseIn(echoPin, HIGH);          
+    distance = duration * 0.034 / 2;            
     String printDistance = "Distance : ";
     String cm = " cm";
     String printing = printDistance + distance + cm;
@@ -101,27 +108,14 @@ void loop() {
     }
       
     // WATER SENSOR LOOP CODE
-    digitalWrite(POWER_PIN, HIGH);  // turn the sensor ON
-    delay(10);                      // wait 10 milliseconds
-    value = analogRead(SIGNAL_PIN); // read the analog value from sensor
-    digitalWrite(POWER_PIN, LOW);   // turn the sensor OFF
+    digitalWrite(POWER_PIN, HIGH);  
+    delay(10);                      
+    value = analogRead(SIGNAL_PIN); 
+    digitalWrite(POWER_PIN, LOW);   
     Serial.print("Water Detector Value: ");
     Serial.println(value);
       
   }
-  if (newString.endsWith("Loc")){
-    sendGPS(); 
-  }
-  if (newString.endsWith("Location")){
-    sendGPS(); 
-  }
-  if (newString.endsWith("loc")){
-    sendGPS(); 
-  }
-  if (newString.endsWith("location")){
-    sendGPS(); 
-  }
-
 }
 
 void updateSerial()
