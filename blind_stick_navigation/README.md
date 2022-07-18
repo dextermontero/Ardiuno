@@ -6,7 +6,6 @@
 The GPS module isn't working.
 
 </br>
-</br>
 
 **Component's:**
 - Ardiuno Uno
